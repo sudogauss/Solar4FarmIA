@@ -102,11 +102,13 @@ class SolarActivity():
                 self.__fall_transition_matrix[i][j] /= fall_cols_sums[j]
                 self.__summer_transition_matrix[i][j] /= summer_cols_sums[j]
 
-    
-    def __iter__(self):
-        return self
+    def next_step(self) -> Tuple[float, float]:
+        """
+        A function to be called to return current state and transit to the next state
 
-    def __next__(self):
+        Returns:
+            Tuple[float, float]: current state
+        """
         _st = self.__curent_state 
         __next_state()
         return _st
