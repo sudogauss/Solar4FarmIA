@@ -1,9 +1,8 @@
 import pandas as pd
 from typing import Tuple
 import numpy as np
-
+import sys
 from const import TEMPERATURE_STATE_NUMBER, IRRADIANCE_STATE_NUMBER
-
 
 
 class SolarActivity():
@@ -89,6 +88,7 @@ class SolarActivity():
                 self.__fall_transition_matrix[_from_state][_to_state] += 1
             else:
                 print("Error in transition matrix constrution: month number {month} does not exist")
+                sys.exit(1)
 
         winter_cols_sums = self.__winter_transition_matrix.sum(axis=0)
         spring_cols_sums = self.__spring_transition_matrix.sum(axis=0)
@@ -146,6 +146,7 @@ class SolarActivity():
                 _tmp_trans = self.__fall_transition_matrix[_st][l]
             else:
                 print("Error in transition matrix constrution: month number {month} does not exist")
+                sys.exit(1)
 
             if acc <= h <= acc + _tmp_trans:
                 _new_st = l
@@ -156,4 +157,4 @@ class SolarActivity():
         _j = int(_new_st / IRRADIANCE_STATE_NUMBER)
         _k = _new_st % IRRADIANCE_STATE_NUMBER
 
-        self.current_state = (self.Tmin + _j * self.dT, self.Rmin + _k * self.dR) 
+        self.current_state = (self.Tmin + _j * self.dT, self.Rmin + _k * self.dR)

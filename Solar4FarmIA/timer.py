@@ -1,4 +1,15 @@
 class Timer():
+    """
+        Timer iterator class which allows to count hour by hour
+        during the year keeping track of hours, days and months.
+
+        Attributes:
+            hour (int): current hour
+            day (int): current day
+            month (int): current month
+            m_day_counter (int): day counter in current month
+            months_days List[int]: day's number for each month
+    """
 
     def __init__(self) -> None:
         pass
