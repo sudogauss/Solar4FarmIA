@@ -1,10 +1,24 @@
 import numpy as np
-from const import ACTIVE_CURRENT, PASSIVE_CURRENT, \
+from Solar4FarmIA.const import ACTIVE_CURRENT, PASSIVE_CURRENT, \
             BOT_ACTIVITY_BEGINNING, BOT_ACTIVITY_FINISHING
 import sys
 
 
 class Bot():
+    """
+    This class allows to simulate FarmBot activity. It has 2 modes of functionning:
+    active and passive. The power consumption is bigger for active mode (see pdf in docs folder
+    in this repository). Depending on season(month) and solar activity 
+    (dusk and dull, hour of the day) bot's activation probabilty increases.
+
+    Attributes:
+            probability (float): current activation probability
+            initial_probability (float): probability after activity
+            dp_winter (float): winter's probabilty discrete step
+            dp_spring (float): spring's probabilty discrete step
+            dp_summer (float): summer's probabilty discrete step
+            dp_fall (float): fall's probabilty discrete step
+    """
 
     def __init__(self, 
                  initial_probability: float, 
@@ -14,7 +28,8 @@ class Bot():
                  dp_fall: float) -> None:
         """
         Allows to initialize activation probabilty and probabilities
-        discrete steps for each season 
+        discrete steps for each season. Keep initial probabilty in the 
+        interval [0.001, 0.01] and discrete steps in the interval [0.01, 0.05]
 
         Args:
             initial_probability (float): probability after activity
@@ -35,9 +50,21 @@ class Bot():
         self.dpf = dp_fall
 
     def next_step(self, hour: int, month: int) -> float:
+        """
+        This function allows to simulate the behaviour of FarmBot for
+        each hour and month. It progressively increases the probability
+        of activation and resets the probability after its activation.
+
+        Args:
+            hour (int): hour of the day
+            month (int): month of the year
+
+        Returns:
+            float: Electrical current used by bot (passive or active current)
+        """
         _p = self.probability
         _x = np.uniform(0.0, 1.0)
-        _is_active = (0.0 <= _x <= _p)
+        _is_active = (0.0 <= _x <= _p) # probabilistic activation
 
         if _is_active:
             self.probability = self.initial_probability
@@ -62,7 +89,7 @@ class Bot():
             elif 0 <= hour <= BOT_ACTIVITY_BEGINNING or BOT_ACTIVITY_FINISHING <= hour < 24:
                 pass
             else:
-                print("Error in bot simulation: hour {month} does not exist")
+                print("Error in bot simulation: hour {hour} does not exist")
                 sys.exit(1)
             
             return PASSIVE_CURRENT

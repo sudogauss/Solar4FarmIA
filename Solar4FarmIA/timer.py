@@ -1,4 +1,5 @@
-from const import MONTHS_DAYS
+from Solar4FarmIA.const import MONTHS_DAYS
+from typing import Tuple
 
 
 class Timer():
@@ -18,16 +19,29 @@ class Timer():
         pass
     
     def __iter__(self):
+        """
+        Initializes iterator
+
+        Returns:
+            Timer: timer iterator
+        """
         self.hour = 0
         self.day = 1
         self.month = 1
         self.m_day_counter = 1
         return self
 
-    def __next__(self):
+    def __next__(self) -> Tuple[int, int, int]:
+        """
+        Allows to iterate through the year keeping track
+        of day and month
+
+        Raises:
+            StopIteration: stops the iteration
+        """
         if self.day <= 365:
             _dt = (self.hour, self.day, self.month)
-            if self.hour >= 24:
+            if self.hour >= 23:
                 self.hour = 0
                 self.day += 1
                 self.m_day_counter += 1
@@ -36,5 +50,6 @@ class Timer():
                     self.month += 1
             else:
                 self.hour += 1
+            return _dt
         else:
             raise StopIteration
