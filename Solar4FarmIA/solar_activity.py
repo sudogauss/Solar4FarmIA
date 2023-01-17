@@ -27,7 +27,7 @@ class SolarActivity():
         dT (float): temperature discrete step
         dR (float): irradiance discrete step
     """
-    def __init__(self, initial_state: Tuple[float, float], solar_dataset: str = "data/solar_data_2018.csv") -> None:
+    def __init__(self, initial_state: Tuple[float, float], solar_dataset: str = "data/solar_data.csv") -> None:
         """
         SolarActivity constructor allows to build transition matrcies for each season
         based on solar_dataset. Initilisez __curent_state to initial_state.
@@ -50,12 +50,12 @@ class SolarActivity():
         self.dT = (self.Tmax - self.Tmin) / TEMPERATURE_STATE_NUMBER # discrete step of temperature
         self.dR = (self.Rmax - self.Rmin) / IRRADIANCE_STATE_NUMBER # discrete step of irradiance
 
-        N = (TEMPERATURE_STATE_NUMBER * IRRADIANCE_STATE_NUMBER) # state number
+        self.N = (TEMPERATURE_STATE_NUMBER * IRRADIANCE_STATE_NUMBER) # state number
 
-        self.__summer_transition_matrix = np.ones((N, N))
-        self.__spring_transition_matrix = np.ones((N, N))
-        self.__fall_transition_matrix = np.ones((N, N))
-        self.__winter_transition_matrix = np.ones((N, N))
+        self.__summer_transition_matrix = np.ones((self.N, self.N))
+        self.__spring_transition_matrix = np.ones((self.N, self.N))
+        self.__fall_transition_matrix = np.ones((self.N, self.N))
+        self.__winter_transition_matrix = np.ones((self.N, self.N))
 
 
         for i in range(len(temperatures) - 1):
@@ -90,27 +90,27 @@ class SolarActivity():
                 print("Error in transition matrix constrution: month number {month} does not exist")
                 sys.exit(1)
 
-        winter_cols_sums = self.__winter_transition_matrix.sum(axis=0)
-        spring_cols_sums = self.__spring_transition_matrix.sum(axis=0)
-        fall_cols_sums = self.__fall_transition_matrix.sum(axis=0)
-        summer_cols_sums = self.__summer_transition_matrix.sum(axis=0)
+        winter_cols_sums = self.__winter_transition_matrix.sum(axis=1)
+        spring_cols_sums = self.__spring_transition_matrix.sum(axis=1)
+        fall_cols_sums = self.__fall_transition_matrix.sum(axis=1)
+        summer_cols_sums = self.__summer_transition_matrix.sum(axis=1)
 
-        for i in range(N):
-            for j in range(N):
-                self.__winter_transition_matrix[i][j] /= winter_cols_sums[j]
-                self.__spring_transition_matrix[i][j] /= spring_cols_sums[j]
-                self.__fall_transition_matrix[i][j] /= fall_cols_sums[j]
-                self.__summer_transition_matrix[i][j] /= summer_cols_sums[j]
+        for i in range(self.N):
+            for j in range(self.N):
+                self.__winter_transition_matrix[i][j] /= winter_cols_sums[i]
+                self.__spring_transition_matrix[i][j] /= spring_cols_sums[i]
+                self.__fall_transition_matrix[i][j] /= fall_cols_sums[i]
+                self.__summer_transition_matrix[i][j] /= summer_cols_sums[i]
 
-    def next_step(self) -> Tuple[float, float]:
+    def next_step(self, month: int) -> Tuple[float, float]:
         """
         A function to be called to return current state and transit to the next state
 
         Returns:
             Tuple[float, float]: current state
         """
-        _st = self.__curent_state 
-        __next_state()
+        _st = self.__current_state 
+        self.__next_state(month)
         return _st
 
     def __next_state(self, month: int) -> None:
@@ -121,8 +121,8 @@ class SolarActivity():
         Args:
             month (int): a month of the year
         """
-        j = int((self.current_state[0] - self.Tmin) / self.dT)
-        k = int((self.current_state[1] - self.Rmin) / self.dR)
+        j = int((self.__current_state[0] - self.Tmin) / self.dT)
+        k = int((self.__current_state[1] - self.Rmin) / self.dR)
 
         if j == TEMPERATURE_STATE_NUMBER: # decrement for maximal value as it exceeds the range
             j -= 1
@@ -134,7 +134,7 @@ class SolarActivity():
         acc = 0.0
         _new_st = 0
 
-        for l in range(N-1):
+        for l in range(self.N-1):
             _tmp_trans = 0.0
             if month == 12 or 1 <= month <= 2:
                 _tmp_trans = self.__winter_transition_matrix[_st][l]
@@ -147,7 +147,6 @@ class SolarActivity():
             else:
                 print("Error in transition matrix constrution: month number {month} does not exist")
                 sys.exit(1)
-
             if acc <= h <= acc + _tmp_trans:
                 _new_st = l
                 break
@@ -157,4 +156,4 @@ class SolarActivity():
         _j = int(_new_st / IRRADIANCE_STATE_NUMBER)
         _k = _new_st % IRRADIANCE_STATE_NUMBER
 
-        self.current_state = (self.Tmin + _j * self.dT, self.Rmin + _k * self.dR)
+        self.__current_state = (self.Tmin + _j * self.dT, self.Rmin + _k * self.dR)

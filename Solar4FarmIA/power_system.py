@@ -8,7 +8,7 @@ class PowerSystem():
                  solar_area: float,
                  solar_efficiency: float,
                  production_country: str,
-                 max_power: int,
+                 max_power: float,
                  material: str) -> None:
         
         self.__solar_area = solar_area
@@ -17,7 +17,7 @@ class PowerSystem():
         self.__max_power = max_power
         self.__material = material
 
-        self.__max_battery_capacity = CAPACITY_COEFFICIENT * (self.max_power / OPERATION_VOLTAGE)
+        self.__max_battery_capacity = min(CAPACITY_COEFFICIENT * (self.__max_power / OPERATION_VOLTAGE), MAX_CAPACITY)
         self.__main_battery_capacity = self.__max_battery_capacity
         self.__backup_battery_capacity = self.__max_battery_capacity
         self.__on_main_battery = True
@@ -29,6 +29,12 @@ class PowerSystem():
 
         assert self.__high_threshold > ACTIVE_CURRENT
 
+    def reset(self):
+        self.__main_battery_capacity = self.__max_battery_capacity
+        self.__backup_battery_capacity = self.__max_battery_capacity
+        self.__on_main_battery = True
+        self.__total_battery_energy = 0
+
     def get_carbon_footprint(self) -> float:
 
         solar_panel_footprint = (self.__max_power 
@@ -36,7 +42,7 @@ class PowerSystem():
                     + PRODUCTION_MATERIAL_TO_FOOTPRINT[self.__material]) / 2) \
                 + (PRODUCTION_COUNTRY_DISTANCE[self.__production_country] * KM_TO_CARBON_FOOTPRINT)
         
-        battery_footprint = self.__total_battery_energy * ENERGY_TO_FOOTPRINT
+        battery_footprint = self.__max_battery_capacity * ENERGY_TO_FOOTPRINT
 
         return solar_panel_footprint + battery_footprint
 
@@ -82,8 +88,3 @@ class PowerSystem():
         assert _switch == False
 
         return _satisfy
-
-
-        
-                            
-            

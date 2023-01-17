@@ -1,4 +1,4 @@
-from Solar4FarmIA.const import MONTHS_DAYS
+from const import MONTHS_DAYS
 from typing import Tuple
 
 

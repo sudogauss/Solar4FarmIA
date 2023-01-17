@@ -1,5 +1,5 @@
 import numpy as np
-from Solar4FarmIA.const import ACTIVE_CURRENT, PASSIVE_CURRENT, \
+from const import ACTIVE_CURRENT, PASSIVE_CURRENT, \
             BOT_ACTIVITY_BEGINNING, BOT_ACTIVITY_FINISHING
 import sys
 
@@ -60,10 +60,10 @@ class Bot():
             month (int): month of the year
 
         Returns:
-            float: Electrical current used by bot (passive or active current)
+            float: Electrical power used by bot (passive or active state)
         """
         _p = self.probability
-        _x = np.uniform(0.0, 1.0)
+        _x = np.random.uniform(0.0, 1.0)
         _is_active = (0.0 <= _x <= _p) # probabilistic activation
 
         if _is_active:
